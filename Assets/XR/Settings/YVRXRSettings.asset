@@ -21,7 +21,7 @@ MonoBehaviour:
   outerPassRenderScale: 1
   innerPassRenderScale: 1
   OSSplashScreen: {fileID: 0}
-  passthroughProvider: 0
+  passthroughProvider: 1
   autoResolve: 1
   extraRenderPass: 0
   extraRenderPassDepth: -1
