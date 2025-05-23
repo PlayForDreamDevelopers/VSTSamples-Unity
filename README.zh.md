@@ -50,12 +50,15 @@
 
 ![2025 05 06_214025783](https://github.com/user-attachments/assets/a5135589-2ed2-4bdb-9937-edb5ac5e2375)
 
+此示例的使用方法：
+- 右手柄A键：创建点/设置点
+  </br>四个点设置完成后，再次按下A键，创建VST画布。
+- 右手柄B键：删除设置标识
+
 ## 要求
 
 -   Unity 2022.3.52f1 or later
 -   Unity Packages:
     -   [YVR Core](https://github.com/PlayForDreamDevelopers/com.yvr.core-mirror)
     -   [YVR Utilities](https://github.com/PlayForDreamDevelopers/com.yvr.Utilities-mirror)
-    -   [YVR Enterprise](https://github.com/PlayForDreamDevelopers/com.yvr.enterprise-mirror)
-    -   [YVR Android-Device Core](https://github.com/PlayForDreamDevelopers/com.yvr.android-device.core-mirror)
     -   [YVR Interaction](https://github.com/PlayForDreamDevelopers/com.yvr.interaction-mirror)

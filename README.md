@@ -51,12 +51,14 @@ This project provides a few minimal examples to illustrate how to use the SDK AP
 
 ![2025 05 06_214025783](https://github.com/user-attachments/assets/a5135589-2ed2-4bdb-9937-edb5ac5e2375)
 
+How to use this example:
+- Right Handle A Button: Create Point/Set Point
+  </br>Once the four dots are set, press A again to create a VST canvas.
+- Right Handle B Button: Delete the setting mark
 ## Requirements
 
 -   Unity 2022.3.52f1 or later
 -   Unity Package：
     -   [YVR Core](https://github.com/PlayForDreamDevelopers/com.yvr.core-mirror)
     -   [YVR Utilities](https://github.com/PlayForDreamDevelopers/com.yvr.Utilities-mirror)
-    -   [YVR Enterprise](https://github.com/PlayForDreamDevelopers/com.yvr.enterprise-mirror)
-    -   [YVR Android-Device Core](https://github.com/PlayForDreamDevelopers/com.yvr.android-device.core-mirror)
     -   [YVR Interaction](https://github.com/PlayForDreamDevelopers/com.yvr.interaction-mirror)
