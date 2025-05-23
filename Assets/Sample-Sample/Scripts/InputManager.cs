@@ -31,7 +31,11 @@ public class InputManager : MonoBehaviour
 
     private void AddQuadPoint(InputAction.CallbackContext context)
     {
-        QuadManager.instance.AddQuadPoint();
+        if(!QuadManager.instance.isSettingPoint)
+            QuadManager.instance.AddQuadPoint();
+        else
+            QuadManager.instance.isSettingPoint = false;
+    
     }
 
     private void OnDisable()

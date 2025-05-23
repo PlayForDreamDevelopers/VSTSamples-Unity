@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,6 +15,7 @@ public class QuadManager : MonoBehaviour
 
     public Transform RightRayOrigin;
     public float pointSpawnDistance;
+    [HideInInspector]public bool isSettingPoint;
     
     private List<Vector3> m_CurrentQuadPoints = new List<Vector3>();
     private List<GameObject> m_DrawMarker = new List<GameObject>();
@@ -24,26 +26,77 @@ public class QuadManager : MonoBehaviour
             m_Instance = this;
     }
 
+    private void Update()
+    {
+        SettingPoint();
+    }
+    
+    public void SettingPoint()
+    {
+        if(m_DrawMarker.Count == 1 && isSettingPoint)
+        {
+            m_CurrentQuadPoints[0] = RightRayOrigin.position + RightRayOrigin.forward * pointSpawnDistance;
+            m_DrawMarker[0].transform.position = m_CurrentQuadPoints[0];
+        }
+        else if (m_DrawMarker.Count == 3 && isSettingPoint)
+        {
+            LineRenderer lr = m_DrawMarker[1].GetComponent<LineRenderer>();
+            m_CurrentQuadPoints[1] = RightRayOrigin.position + RightRayOrigin.forward * pointSpawnDistance;
+            m_DrawMarker[2].transform.position = m_CurrentQuadPoints[1];
+            lr.SetPosition(1, m_CurrentQuadPoints[1]);
+        }
+        else if (m_DrawMarker.Count == 8 && isSettingPoint)
+        {
+            LineRenderer lr = m_DrawMarker[3].GetComponent<LineRenderer>();
+            m_CurrentQuadPoints[2] = RightRayOrigin.position + RightRayOrigin.forward * pointSpawnDistance;
+            m_DrawMarker[4].transform.position = m_CurrentQuadPoints[2];
+            lr.SetPosition(1, m_CurrentQuadPoints[2]);
+            
+            lr = m_DrawMarker[5].GetComponent<LineRenderer>();
+            m_CurrentQuadPoints[3]
+                = CalculateParallelogramFourthPoint(m_CurrentQuadPoints[0], m_CurrentQuadPoints[1],
+                                                    m_CurrentQuadPoints[2]);
+            m_DrawMarker[6].transform.position = m_CurrentQuadPoints[3];
+            lr.SetPosition(0, m_CurrentQuadPoints[2]);
+            lr.SetPosition(1, m_CurrentQuadPoints[3]);
+            
+            lr = m_DrawMarker[7].GetComponent<LineRenderer>();
+            lr.SetPosition(0, m_CurrentQuadPoints[3]);
+        }
+    }
     public void AddQuadPoint()
     {
-        // 当未完成当前四边形时处理临时点
-        if (m_CurrentQuadPoints.Count < 3)
+        if (!isSettingPoint)
         {
-            Vector3 point = RightRayOrigin.position + RightRayOrigin.forward * pointSpawnDistance;
-            m_CurrentQuadPoints.Add(point);
-
-            // 根据点数绘制不同内容
-            switch (m_CurrentQuadPoints.Count)
+            if(m_CurrentQuadPoints.Count == 4)
             {
-                case 1:
-                    DrawSphere(point); // 第一个点绘制小球
-                    break;
-                case 2:
-                    DrawLine(m_CurrentQuadPoints[0], m_CurrentQuadPoints[1]); // 两点连线
-                    break;
-                case 3:
-                    DrawQuadrilateral(m_CurrentQuadPoints[0], m_CurrentQuadPoints[1], m_CurrentQuadPoints[2]);//绘制四边形
-                    break;
+                DrawQuadrilateral();
+            }
+            else
+            {
+                Vector3 point = RightRayOrigin.position + RightRayOrigin.forward * pointSpawnDistance;
+                m_CurrentQuadPoints.Add(point);
+                // 根据点数绘制不同内容
+                switch (m_CurrentQuadPoints.Count)
+                {
+                    case 1:
+                        DrawSphere(point); // 绘制第一个点
+                        break;
+                    case 2:
+                        DrawLine(m_CurrentQuadPoints[0], m_CurrentQuadPoints[1]); // 两点连线
+                        DrawSphere(point);//绘制第二个点
+                        break;
+                    case 3:
+                        DrawLine(m_CurrentQuadPoints[1], m_CurrentQuadPoints[2]); // 两点连线
+                        DrawSphere(point); //绘制第三个点
+                        Vector3 calculatePoint = CalculateParallelogramFourthPoint(m_CurrentQuadPoints[0], m_CurrentQuadPoints[1], m_CurrentQuadPoints[2]);
+                        m_CurrentQuadPoints.Add(calculatePoint);
+                        DrawLine(m_CurrentQuadPoints[2], m_CurrentQuadPoints[3]); // 两点连线
+                        DrawSphere(calculatePoint);// 绘制第四个点
+                        DrawLine(m_CurrentQuadPoints[3], m_CurrentQuadPoints[0]); // 两点连线
+                        break;
+                }
+                isSettingPoint = true;
             }
         }
     }
@@ -51,11 +104,10 @@ public class QuadManager : MonoBehaviour
     // 计算平行四边形的第四个点
     private Vector3 CalculateParallelogramFourthPoint(Vector3 p0, Vector3 p1, Vector3 p2)
     {
-        // 通过向量计算：p3 = p0 + (p1 - p0) + (p2 - p0) = p1 + p2 - p0
         return p0 + p2 - p1;
     }
 
-    // 绘制小球（第一个点）
+    // 绘制小球
     private void DrawSphere(Vector3 position)
     {
         GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -65,10 +117,9 @@ public class QuadManager : MonoBehaviour
         m_DrawMarker.Add(sphere);
     }
 
-    // 绘制线段（第二个点）
+    // 绘制线段
     private void DrawLine(Vector3 start, Vector3 end)
     {
-        DrawSphere(end);
         GameObject lineObj = new GameObject("Line");
         LineRenderer lr = lineObj.AddComponent<LineRenderer>();
         lr.positionCount = 2;
@@ -79,12 +130,8 @@ public class QuadManager : MonoBehaviour
         m_DrawMarker.Add(lineObj);
     }
 
-    private void DrawQuadrilateral(Vector3 p0, Vector3 p1, Vector3 p2)
+    private void DrawQuadrilateral()
     {
-        // 计算第四个点完成平行四边形
-        Vector3 p3 = CalculateParallelogramFourthPoint(p0, p1, p2);
-        m_CurrentQuadPoints.Add(p3);
-
         // 存入字典并生成四边形
         m_QuadsDic.Add(creatQuadIndex, new List<Vector3>(m_CurrentQuadPoints));
         CreateQuad();
@@ -94,6 +141,7 @@ public class QuadManager : MonoBehaviour
 
     public void ClearTemporaryPoints()
     {
+        isSettingPoint = false;
         m_CurrentQuadPoints.Clear(); // 重置临时点
         //销毁绘制标识
         foreach (GameObject marker in m_DrawMarker)
@@ -104,8 +152,12 @@ public class QuadManager : MonoBehaviour
     }
     public void CreateQuad()
     {
-        if (creatQuadIndex >= m_QuadsDic.Count || m_QuadsDic[creatQuadIndex].Count != 4)
+        if (m_QuadsDic[creatQuadIndex].Count != 4)
         {
+            for (int i = 0; i < m_QuadsDic[creatQuadIndex].Count; i++)
+            {
+                Debug.Log(m_QuadsDic[creatQuadIndex][i]);
+            }
             Debug.LogWarning("四边形数据不完整");
             return;
         }
